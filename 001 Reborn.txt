@@ -1,0 +1,9 @@
+clone branch like main
+
+>git checkout --orphan clean-main
+>git rm -rf .
+>git clean -fdx
+>git commit --allow-empty -m "Reborn: empty main branch"
+>git branch -D main
+>git branch -m main
+>git push -f origin main   or    git push -fu origin main
