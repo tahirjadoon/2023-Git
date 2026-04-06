@@ -1,0 +1,60 @@
+main
+└── integration   (🔵 reset each release)
+    └── feature/qa01
+        └── feature/some-project
+		
+1. feature/some-project → feature/qa01
+git switch feature/env-a
+git merge --squash feature/some-project  [or pull request]
+git commit -m "Promote some-project to env-a"
+
+2. feature/env-a → integration [via the promotion/wrapper branch]
+git switch integration
+git merge --no-ff feature/env-a -m "Promote env-a to integration"
+
+	Why?
+	• 	You want a traceable promotion event
+	• 	You want to know exactly what env‑a delivered
+	• 	You do NOT want to rewrite history here
+	• 	Multiple teams will be merging into integration
+	This keeps integration auditable.
+	
+3. integration → main [via the promotion/wrapper branch]
+git switch main
+git merge --no-ff integration -m "Release from integration"
+
+-----------------------------------------------------------------------
+
+feature/some-project
+        │
+        ▼  🟩 squash pull request (may or may not be via promotion branch)
+feature/qa01
+        │
+        ▼  🟦 PR via promotion branch merge --no-ff
+integration
+        │
+        ▼  🟧 PR via promotion branch merge --no-ff
+main
+
+if we need to do a rebase, it has to be done 
+
+feature/some-project  ← rebase onto new main
+or merge/wrapper branches but netter is delete
+
+-----------------------------------------------------------------------
+--architecture 
+
+=> branches
+main
+integration (reset each release)
+feature/env-a
+feature/some-project
+promotion/* (temporary)
+
+Where rebase happens 
+feature/some-project  ← rebase onto main after each release
+
+Where merge happens
+- feature/some-project → feature/env-a (squash)
+- feature/env-a → integration (merge --no-ff)
+- promotion → main (PR completed by DevOps)
